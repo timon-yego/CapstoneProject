@@ -38,6 +38,14 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
     
+#Task category definition
+class TaskCategory(models.Model):
+    name = models.CharField(max_length=50)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
+    
 # Task model definition
 class Task(models.Model):
     PRIORITY_CHOICES = [
@@ -57,6 +65,14 @@ class Task(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # Correct lazy reference
     completed_at = models.DateTimeField(null=True, blank=True)
+    category = models.ForeignKey(TaskCategory, null=True, blank=True, on_delete=models.SET_NULL)
+    recurrence_interval = models.CharField(
+        max_length=10,
+        choices=[('none', 'None'), ('daily', 'Daily'), ('weekly', 'Weekly'), ('monthly', 'Monthly')],
+        default='none'
+    )
+    collaborators = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='collaborative_tasks', blank=True)
+
 
     def mark_complete(self):
         """Mark the task as completed and set the timestamp."""
@@ -69,9 +85,27 @@ class Task(models.Model):
         self.status = 'pending'
         self.completed_at = None
         self.save()
-
+       
+    
+    def regenerate_task(self):
+        """Regenerate a recurring task after it's completed."""
+        if self.recurrence_interval == 'daily':
+            self.due_date = self.due_date + timezone.timedelta(days=1)
+        elif self.recurrence_interval == 'weekly':
+            self.due_date = self.due_date + timezone.timedelta(weeks=1)
+        elif self.recurrence_interval == 'monthly':
+            self_due_date = self.due_date + timezone.timedelta(weeks=4)
+        self.status = 'pending'
+        self.completed_at = None
+        self.save()
 
     def __str__(self):
         return self.title
+    
+class TaskHistory(models.Model):
+    task = models.ForeignKey(Task, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    completed_at = models.DateTimeField()
 
-
+    def __str__(self):
+        return f'{self.task.title} completed by {self.user.email} on {self.completed_at}'

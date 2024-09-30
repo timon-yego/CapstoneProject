@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from rest_framework import generics, permissions
-from .models import Task, CustomUser
-from .serializers import TaskSerializer, CustomUserSerializer
+from .models import Task, CustomUser, TaskHistory, TaskCategory
+from .serializers import TaskSerializer, CustomUserSerializer, TaskCategorySerializer
+from django.utils import timezone
 
 # Create your views here.
 #View for creating a new user
@@ -42,5 +43,25 @@ class MarkTaskCompleteView(generics.UpdateAPIView):
     def perform_update(self, serializer):
         task = serializer.instance
         task.mark_complete()
+
+        # Log the completed task in history
+        TaskHistory.objects.create(task=task, user=self.request.user, completed_at=timezone.now())
+
+        if task.recurrence_interval != 'none':
+            task.regenerate_task()  # Regenerate task if it's recurring
+
+class TaskCategoryListCreateView(generics.ListCreateAPIView):
+    queryset = TaskCategory.objects.all()
+    serializer_class = TaskCategorySerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Ensure users can only access their own categories
+        return self.queryset.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        # Ensure the category is created for the authenticated user
+        serializer.save(user=self.request.user)
+
     
 
