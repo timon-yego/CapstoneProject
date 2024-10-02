@@ -63,7 +63,7 @@ class Task(models.Model):
     due_date = models.DateField()
     priority_level = models.CharField(max_length=10, choices=PRIORITY_CHOICES)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # Correct lazy reference
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE) # Reference to CustomUser
     category = models.ForeignKey(TaskCategory, null=True, blank=True, on_delete=models.SET_NULL)
     recurrence_interval = models.CharField(
         max_length=10,

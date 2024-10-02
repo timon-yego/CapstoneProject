@@ -33,10 +33,14 @@ class TaskSerializer(serializers.ModelSerializer):
         queryset=TaskCategory.objects.all(), source='category', write_only=True, allow_null=True
     )  # Create/update task with category
 
-    
+
     class Meta:
         model = Task
-        fields = ['id', 'title', 'description', 'due_date', 'priority_level', 'status', 'user', 'completed_at']
+        fields = [
+            'id', 'title', 'description', 'due_date', 'priority_level', 'status',
+            'collaborators', 'collaborator_emails',
+            'category', 'category_id','completed_at'
+        ]
     
     def create(self, validated_data):
         collaborators = validated_data.pop('collaborators', [])
