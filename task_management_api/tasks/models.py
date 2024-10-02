@@ -64,7 +64,6 @@ class Task(models.Model):
     priority_level = models.CharField(max_length=10, choices=PRIORITY_CHOICES)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # Correct lazy reference
-    completed_at = models.DateTimeField(null=True, blank=True)
     category = models.ForeignKey(TaskCategory, null=True, blank=True, on_delete=models.SET_NULL)
     recurrence_interval = models.CharField(
         max_length=10,
@@ -72,6 +71,7 @@ class Task(models.Model):
         default='none'
     )
     collaborators = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='collaborative_tasks', blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
 
 
     def mark_complete(self):
@@ -108,4 +108,4 @@ class TaskHistory(models.Model):
     completed_at = models.DateTimeField()
 
     def __str__(self):
-        return f'{self.task.title} completed by {self.user.email} on {self.completed_at}'
+        return f"History of {self.task.title}"
