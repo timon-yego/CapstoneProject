@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from rest_framework import generics, permissions
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import generics, permissions, filters
 from .models import Task, CustomUser, TaskHistory, TaskCategory
 from .serializers import TaskSerializer, CustomUserSerializer, TaskCategorySerializer, TaskHistorySerializer
 from django.utils import timezone
@@ -16,6 +17,13 @@ class TaskListCreateView(generics.ListCreateAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
     permission_class = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+
+      # Define the fields that can be used for filtering
+    filterset_fields = ['status', 'priority_level', 'due_date']
+    
+    # Define the fields that can be used for ordering
+    ordering_fields = ['due_date', 'priority_level']
 
     def get_queryset(self):
         # Return tasks belonging to the user or where the user is a collaborator

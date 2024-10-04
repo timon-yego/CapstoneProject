@@ -65,7 +65,7 @@ class Task(models.Model):
     ]
     
     title = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
+    description = models.TextField()
     due_date = models.DateField()
     priority_level = models.CharField(max_length=10, choices=PRIORITY_CHOICES)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')

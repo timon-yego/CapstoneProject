@@ -27,12 +27,12 @@ class TaskCategorySerializer(serializers.ModelSerializer):
 #Task Serializer
 class TaskSerializer(serializers.ModelSerializer):
     collaborators = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=CustomUser.objects.all(), write_only=True
+        many=True, queryset=CustomUser.objects.all(), required=False, allow_null=True
     )  # Add collaborators by ID
     collaborator_emails = serializers.StringRelatedField(source='collaborators', many=True, read_only=True)
     category = TaskCategorySerializer(read_only=True)
     category_id = serializers.PrimaryKeyRelatedField(
-        queryset=TaskCategory.objects.all(), source='category', write_only=True, allow_null=True
+        queryset=TaskCategory.objects.all(), source='category', required=False, allow_null=True
     )  # Create/update task with category
 
 
@@ -40,8 +40,8 @@ class TaskSerializer(serializers.ModelSerializer):
         model = Task
         fields = [
             'id', 'title', 'description', 'due_date', 'priority_level', 'status',
-            'collaborators', 'collaborator_emails',
-            'category', 'category_id','completed_at'
+            'category_id', 'category', 'recurrence_interval', 'collaborators', 'collaborator_emails',
+            'completed_at'
         ]
     
     def create(self, validated_data):
