@@ -12,5 +12,5 @@ urlpatterns = [
     path('history/', TaskHistoryListView.as_view(), name='task-history-list'),
     path('users/', UserListView.as_view(), name='user-list'),
     path('users/<int:pk>/', UserDetailView.as_view(), name='user-detail'),
-    path('api/register/', UserRegistrationView.as_view(), name='user-registration'),
+    path('register/', UserRegistrationView.as_view(), name='user-registration'),
 ]
