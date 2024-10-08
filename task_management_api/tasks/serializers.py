@@ -5,7 +5,7 @@ from .models import Task, CustomUser, TaskCategory, TaskHistory
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', 'email', 'first_name', 'last_name']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'password']
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -18,6 +18,18 @@ class CustomUserSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password']) 
         user.save()
         return user
+    
+    def update(self, instance, validated_data):
+        # Update user and hash the password if it's being changed
+        instance.username = validated_data.get('username', instance.username)
+        instance.email = validated_data.get('email', instance.email)
+        instance.first_name = validated_data.get('first_name', instance.first_name)
+        instance.last_name = validated_data.get('last_name', instance.last_name)
+
+        if 'password' in validated_data:
+            instance.set_password(validated_data['password'])  # Hash the new password
+        instance.save()
+        return instance
 
 class TaskCategorySerializer(serializers.ModelSerializer):
     class Meta:

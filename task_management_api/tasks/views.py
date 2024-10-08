@@ -12,6 +12,26 @@ class CreateUserView(generics.CreateAPIView):
     model = CustomUser
     serializer_class = CustomUserSerializer
 
+class UserListView(generics.ListAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+    permission_classes = [permissions.IsAuthenticated]  # Only authenticated users can view/update/delete users
+
+    def get_object(self):
+        # Ensure users can only manage their own account
+        return CustomUser.objects.get(pk=self.request.user.pk)
+
+class UserRegistrationView(generics.CreateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+    permission_classes = [permissions.AllowAny]  # Allow unauthenticated users to register
+
+    
 #View to list and create tasks
 class TaskListCreateView(generics.ListCreateAPIView):
     queryset = Task.objects.all()
